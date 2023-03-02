@@ -5,24 +5,31 @@ import com.vk.api.sdk.httpclient.HttpTransportClient
 import com.vk.api.sdk.objects.photos.PhotoSizes
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.HttpClients
+import screen.MainScreen
 import java.io.File
+import java.io.FileInputStream
 import java.nio.file.Paths
+import java.util.Properties
 
 fun main(args: Array<String>) {
 
-    val appID = 123
-    val clientSecret = ""
-    val serviceSecret = ""
-    val redirectURI = ""
+    MainScreen().runScreen()
 
-    val communityID = -63282215
+
+    val prop = Properties()
+    prop.load(FileInputStream("src/main/resources/local.properties"))
+
+    val appID = prop.getProperty("appID").toInt()
+    val serviceSecret = prop.getProperty("serviceSecret")
+
+    val groupID = -63282215
     val communityShortTitle = "nercnews"
 
-    val photoTypeArr = arrayOf("w","z","y")
+    val vkClient = VkClient(appID = appID, secret = serviceSecret)
+    vkClient.infoGroup(groupID)
 
     val transportClient: TransportClient = HttpTransportClient()
     val vk = VkApiClient(transportClient)
-
 
     val serviceActor = ServiceActor(appID, serviceSecret)
 
@@ -30,7 +37,7 @@ fun main(args: Array<String>) {
     val respAlbum = vk.photos()
         .getAlbums(serviceActor)
         .needSystem(true)
-        .ownerId(communityID)
+        .ownerId(groupID)
         .execute()
 
     // возвращает информацию о группе
@@ -42,11 +49,11 @@ fun main(args: Array<String>) {
     // возвращает информацию о фотках по альбому
     val respGetPhoto = vk.photos()
         .get(serviceActor)
-        .ownerId(communityID)
+        .ownerId(groupID)
         .albumId("289099425")
         .photoIds()
         .photoSizes(true)
-        .offset(700)
+        .offset(0)
         .execute()
 
     val photoUrl = respGetPhoto.items.map { it.sizes }
