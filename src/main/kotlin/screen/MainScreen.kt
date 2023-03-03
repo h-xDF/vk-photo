@@ -9,6 +9,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient
 import com.vk.api.sdk.objects.photos.PhotoAlbumFull
 import java.io.FileInputStream
 import java.util.*
+import kotlin.properties.Delegates
 
 class MainScreen {
 
@@ -18,6 +19,8 @@ class MainScreen {
     private lateinit var serviceActor: ServiceActor
     private lateinit var vk: VkApiClient
     private lateinit var vkClient: VkClient
+
+    private var groupId by Delegates.notNull<Int>()
 
     private var albumList: List<PhotoAlbumFull> = listOf()
 
@@ -32,11 +35,11 @@ class MainScreen {
 
         utils = InputUtils()
         val prop = Properties()
-        prop.load(FileInputStream("src/main/resources/local.properties"))
+        prop.load(FileInputStream("src/main/resources/personal.properties"))
 
         val appID = prop.getProperty("appID").toInt()
         val serviceSecret = prop.getProperty("serviceSecret")
-        val groupId = prop.getProperty("groupID").toInt()
+        groupId = prop.getProperty("groupID").toInt()
 
         serviceActor = ServiceActor(appID, serviceSecret)
 
@@ -57,7 +60,9 @@ class MainScreen {
     }
 
     private fun waitUserCommand() {
-        val command = utils.readCommand(albumList.size - 1)
+        val consoleAlbumId = utils.readCommand(albumList.size - 1)
+
+        DownloadScreen(vkClient, groupId = groupId, albumList[consoleAlbumId]).runScreen()
         InputUtils().endPrintScreen()
     }
 

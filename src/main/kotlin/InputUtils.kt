@@ -24,6 +24,10 @@ class InputUtils {
         print("Выберите альбом для скачивания:")
     }
 
+    fun showDownloadProgress(progressMessage: String) {
+        println(progressMessage)
+    }
+
     fun endPrintScreen() {
         println("======\n")
     }
